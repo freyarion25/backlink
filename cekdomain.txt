@@ -54,7 +54,24 @@ if ($result && $result->num_rows > 0) {
     echo str_repeat("-", 50) . "\n";
 } else {
     echo "❌ Gagal query atau tabel tidak ditemukan.\n";
-    echo "   Error: " . $conn->error . "\n";
+    echo "   Error: " . $conn->error . "\n\n";
+    
+    // Coba cari semua tabel
+    echo "🔍 Mencari semua tabel di database:\n";
+    $tables = $conn->query("SHOW TABLES");
+    if ($tables && $tables->num_rows > 0) {
+        $found = false;
+        while ($row = $tables->fetch_array()) {
+            $table = $row[0];
+            if (strpos($table, 'options') !== false) {
+                echo "  - $table (mengandung 'options')\n";
+                $found = true;
+            }
+        }
+        if (!$found) {
+            echo "  Tidak ada tabel yang mengandung kata 'options'.\n";
+        }
+    }
 }
 
 $conn->close();
