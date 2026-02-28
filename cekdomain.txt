@@ -1,40 +1,34 @@
 <?php
-// Script untuk mengecek domain WordPress dari database
-// Simpan sebagai cekdomain.php di folder public_html
-
+// Script cek domain WordPress dengan auto-detect table prefix
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-echo "=== CEK DOMAIN WORDPRESS ===\n\n";
+echo "=== CEK DOMAIN WORDPRESS (FIXED) ===\n\n";
 
-// Cek apakah file wp-config.php ada
+// Cek file wp-config
 if (!file_exists('wp-config.php')) {
-    die("ERROR: File wp-config.php tidak ditemukan di folder ini!\n");
+    die("ERROR: wp-config.php tidak ditemukan!\n");
 }
 
-// Baca wp-config.php
 $config = file_get_contents('wp-config.php');
-if ($config === false) {
-    die("ERROR: Tidak bisa membaca wp-config.php\n");
-}
 
-// Ambil konfigurasi database dengan regex yang lebih baik
+// Ambil data database
 preg_match("/define\(\s*'DB_NAME'\s*,\s*'(.*)'\s*\)/", $config, $dbname);
 preg_match("/define\(\s*'DB_USER'\s*,\s*'(.*)'\s*\)/", $config, $dbuser);
 preg_match("/define\(\s*'DB_PASSWORD'\s*,\s*'(.*)'\s*\)/", $config, $dbpass);
 preg_match("/define\(\s*'DB_HOST'\s*,\s*'(.*)'\s*\)/", $config, $dbhost);
 
-// Cek apakah semua data database ditemukan
-if (!isset($dbname[1]) || !isset($dbuser[1]) || !isset($dbpass[1])) {
-    die("ERROR: Data database tidak lengkap di wp-config.php\n");
-}
+// Ambil table prefix dari wp-config
+preg_match("/\\$table_prefix\s*=\s*'(.*)';/", $config, $prefix);
+$table_prefix = $prefix[1] ?? 'wp_';
 
 echo "📁 Informasi Database:\n";
 echo "  DB Name: " . $dbname[1] . "\n";
 echo "  DB User: " . $dbuser[1] . "\n";
-echo "  DB Host: " . ($dbhost[1] ?? 'localhost') . "\n\n";
+echo "  DB Host: " . ($dbhost[1] ?? 'localhost') . "\n";
+echo "  Table Prefix: '" . $table_prefix . "'\n\n";
 
-// Konek ke database
+// Konek database
 echo "🔌 Menghubungkan ke database...\n";
 $conn = new mysqli($dbhost[1] ?? 'localhost', $dbuser[1], $dbpass[1], $dbname[1]);
 
@@ -44,57 +38,71 @@ if ($conn->connect_error) {
 
 echo "✅ Koneksi berhasil!\n\n";
 
-// Ambil siteurl dan home dari wp_options
-echo "🔍 Mencari konfigurasi domain di database...\n";
-$result = $conn->query("SELECT option_name, option_value FROM wp_options WHERE option_name IN ('siteurl', 'home')");
+// Cek apakah tabel options dengan prefix yang ditemukan ada
+$table_name = $table_prefix . 'options';
+echo "🔍 Mencari tabel: " . $table_name . "\n";
 
-if ($result->num_rows > 0) {
-    echo "\n📌 Domain yang terkonfigurasi di WordPress:\n";
-    echo str_repeat("-", 50) . "\n";
+$check_table = $conn->query("SHOW TABLES LIKE '$table_name'");
+if ($check_table->num_rows == 0) {
+    echo "❌ Tabel '$table_name' tidak ditemukan!\n\n";
     
-    $data = [];
-    while($row = $result->fetch_assoc()) {
-        $data[$row['option_name']] = $row['option_value'];
-        echo "  " . str_pad($row['option_name'], 10) . ": " . $row['option_value'] . "\n";
-    }
+    // Cari semua tabel yang mirip options
+    echo "🔍 Mencari semua tabel yang mengandung 'options'...\n";
+    $tables = $conn->query("SHOW TABLES LIKE '%options%'");
     
-    echo str_repeat("-", 50) . "\n";
-    
-    // Verifikasi apakah domain americangreennm.com terdaftar
-    if (isset($data['siteurl']) && strpos($data['siteurl'], 'americangreennm.com') !== false) {
-        echo "\n✅ KONFIRMASI: Domain americangreennm.com TERDAFTAR di database WordPress ini!\n";
-    } else {
-        echo "\n⚠️  Domain americangreennm.com TIDAK terdaftar di database ini.\n";
-        if (isset($data['siteurl'])) {
-            echo "   Domain yang terdaftar: " . $data['siteurl'] . "\n";
-        }
-    }
-} else {
-    echo "❌ Tidak menemukan data siteurl/home di database.\n";
-    
-    // Coba cek apakah ada tabel dengan prefix berbeda
-    echo "\n🔍 Mencoba mendeteksi prefix tabel...\n";
-    
-    // Ambil table prefix dari wp-config
-    preg_match("/\\$table_prefix\s*=\s*'(.*)';/", $config, $prefix);
-    $table_prefix = $prefix[1] ?? 'wp_';
-    echo "  Table prefix dari wp-config: '" . $table_prefix . "'\n";
-    
-    // Coba query dengan prefix yang ditemukan
-    $result2 = $conn->query("SHOW TABLES LIKE '{$table_prefix}options'");
-    if ($result2->num_rows > 0) {
-        echo "  ✅ Tabel '{$table_prefix}options' ditemukan!\n";
+    if ($tables->num_rows > 0) {
+        echo "✅ Ditemukan tabel-tabel berikut:\n";
+        $found = false;
         
-        $result3 = $conn->query("SELECT option_name, option_value FROM {$table_prefix}options WHERE option_name IN ('siteurl', 'home')");
-        if ($result3->num_rows > 0) {
-            echo "\n📌 Domain yang terkonfigurasi (dengan prefix {$table_prefix}):\n";
-            while($row = $result3->fetch_assoc()) {
-                echo "  " . $row['option_name'] . ": " . $row['option_value'] . "\n";
+        while ($row = $tables->fetch_array()) {
+            $table = $row[0];
+            echo "  - $table\n";
+            
+            // Coba cari siteurl di setiap tabel
+            $test = $conn->query("SELECT option_name, option_value FROM $table WHERE option_name IN ('siteurl', 'home') LIMIT 1");
+            if ($test->num_rows > 0) {
+                echo "    ✅ Tabel ini mengandung data siteurl/home!\n";
+                $found = true;
+                $real_table = $table;
             }
         }
+        
+        if ($found) {
+            echo "\n📌 Menggunakan tabel: $real_table\n";
+            $result = $conn->query("SELECT option_name, option_value FROM $real_table WHERE option_name IN ('siteurl', 'home')");
+            
+            echo "\n📌 Domain yang terkonfigurasi:\n";
+            echo str_repeat("-", 50) . "\n";
+            while($row = $result->fetch_assoc()) {
+                echo "  " . str_pad($row['option_name'], 10) . ": " . $row['option_value'] . "\n";
+                if (strpos($row['option_value'], 'americangreennm.com') !== false) {
+                    echo "  ✅ DOMAIN AMERICAN GREEN TERDETEKSI!\n";
+                }
+            }
+            echo str_repeat("-", 50) . "\n";
+        } else {
+            echo "\n❌ Tidak menemukan tabel dengan data siteurl/home.\n";
+        }
     } else {
-        echo "  ❌ Tabel '{$table_prefix}options' tidak ditemukan.\n";
-        echo "  💡 Tips: Cek daftar tabel dengan perintah: SHOW TABLES;\n";
+        echo "❌ Tidak ada tabel yang mengandung 'options'.\n";
+    }
+} else {
+    // Tabel ditemukan, langsung query
+    echo "✅ Tabel ditemukan!\n";
+    $result = $conn->query("SELECT option_name, option_value FROM $table_name WHERE option_name IN ('siteurl', 'home')");
+    
+    if ($result->num_rows > 0) {
+        echo "\n📌 Domain yang terkonfigurasi:\n";
+        echo str_repeat("-", 50) . "\n";
+        while($row = $result->fetch_assoc()) {
+            echo "  " . str_pad($row['option_name'], 10) . ": " . $row['option_value'] . "\n";
+            if (strpos($row['option_value'], 'americangreennm.com') !== false) {
+                echo "  ✅ DOMAIN AMERICAN GREEN TERDETEKSI!\n";
+            }
+        }
+        echo str_repeat("-", 50) . "\n";
+    } else {
+        echo "❌ Tabel ditemukan tapi tidak ada data siteurl/home.\n";
     }
 }
 
