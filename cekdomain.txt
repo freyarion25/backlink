@@ -1,24 +1,103 @@
 <?php
-// Isi dengan informasi dari wp-config.php
-$dbname   = 'jaczbxsw_wp628';
-$dbuser   = 'jaczbxsw_wp628';
-$dbpass   = 'i73ch-9pS(';
-$dbhost   = 'localhost';
+// Script untuk mengecek domain WordPress dari database
+// Simpan sebagai cekdomain.php di folder public_html
 
-$conn = new mysqli($dbhost, $dbuser, $dbpass, $dbname);
-if ($conn->connect_error) {
-    die("Koneksi gagal: " . $conn->connect_error);
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+echo "=== CEK DOMAIN WORDPRESS ===\n\n";
+
+// Cek apakah file wp-config.php ada
+if (!file_exists('wp-config.php')) {
+    die("ERROR: File wp-config.php tidak ditemukan di folder ini!\n");
 }
 
-$sql = "SELECT option_value FROM wp_options WHERE option_name IN ('siteurl', 'home')";
-$result = $conn->query($sql);
+// Baca wp-config.php
+$config = file_get_contents('wp-config.php');
+if ($config === false) {
+    die("ERROR: Tidak bisa membaca wp-config.php\n");
+}
+
+// Ambil konfigurasi database dengan regex yang lebih baik
+preg_match("/define\(\s*'DB_NAME'\s*,\s*'(.*)'\s*\)/", $config, $dbname);
+preg_match("/define\(\s*'DB_USER'\s*,\s*'(.*)'\s*\)/", $config, $dbuser);
+preg_match("/define\(\s*'DB_PASSWORD'\s*,\s*'(.*)'\s*\)/", $config, $dbpass);
+preg_match("/define\(\s*'DB_HOST'\s*,\s*'(.*)'\s*\)/", $config, $dbhost);
+
+// Cek apakah semua data database ditemukan
+if (!isset($dbname[1]) || !isset($dbuser[1]) || !isset($dbpass[1])) {
+    die("ERROR: Data database tidak lengkap di wp-config.php\n");
+}
+
+echo "📁 Informasi Database:\n";
+echo "  DB Name: " . $dbname[1] . "\n";
+echo "  DB User: " . $dbuser[1] . "\n";
+echo "  DB Host: " . ($dbhost[1] ?? 'localhost') . "\n\n";
+
+// Konek ke database
+echo "🔌 Menghubungkan ke database...\n";
+$conn = new mysqli($dbhost[1] ?? 'localhost', $dbuser[1], $dbpass[1], $dbname[1]);
+
+if ($conn->connect_error) {
+    die("❌ Koneksi gagal: " . $conn->connect_error . "\n");
+}
+
+echo "✅ Koneksi berhasil!\n\n";
+
+// Ambil siteurl dan home dari wp_options
+echo "🔍 Mencari konfigurasi domain di database...\n";
+$result = $conn->query("SELECT option_name, option_value FROM wp_options WHERE option_name IN ('siteurl', 'home')");
 
 if ($result->num_rows > 0) {
+    echo "\n📌 Domain yang terkonfigurasi di WordPress:\n";
+    echo str_repeat("-", 50) . "\n";
+    
+    $data = [];
     while($row = $result->fetch_assoc()) {
-        echo "Domain: " . $row['option_value'] . "\n";
+        $data[$row['option_name']] = $row['option_value'];
+        echo "  " . str_pad($row['option_name'], 10) . ": " . $row['option_value'] . "\n";
+    }
+    
+    echo str_repeat("-", 50) . "\n";
+    
+    // Verifikasi apakah domain americangreennm.com terdaftar
+    if (isset($data['siteurl']) && strpos($data['siteurl'], 'americangreennm.com') !== false) {
+        echo "\n✅ KONFIRMASI: Domain americangreennm.com TERDAFTAR di database WordPress ini!\n";
+    } else {
+        echo "\n⚠️  Domain americangreennm.com TIDAK terdaftar di database ini.\n";
+        if (isset($data['siteurl'])) {
+            echo "   Domain yang terdaftar: " . $data['siteurl'] . "\n";
+        }
     }
 } else {
-    echo "Tidak ditemukan.";
+    echo "❌ Tidak menemukan data siteurl/home di database.\n";
+    
+    // Coba cek apakah ada tabel dengan prefix berbeda
+    echo "\n🔍 Mencoba mendeteksi prefix tabel...\n";
+    
+    // Ambil table prefix dari wp-config
+    preg_match("/\\$table_prefix\s*=\s*'(.*)';/", $config, $prefix);
+    $table_prefix = $prefix[1] ?? 'wp_';
+    echo "  Table prefix dari wp-config: '" . $table_prefix . "'\n";
+    
+    // Coba query dengan prefix yang ditemukan
+    $result2 = $conn->query("SHOW TABLES LIKE '{$table_prefix}options'");
+    if ($result2->num_rows > 0) {
+        echo "  ✅ Tabel '{$table_prefix}options' ditemukan!\n";
+        
+        $result3 = $conn->query("SELECT option_name, option_value FROM {$table_prefix}options WHERE option_name IN ('siteurl', 'home')");
+        if ($result3->num_rows > 0) {
+            echo "\n📌 Domain yang terkonfigurasi (dengan prefix {$table_prefix}):\n";
+            while($row = $result3->fetch_assoc()) {
+                echo "  " . $row['option_name'] . ": " . $row['option_value'] . "\n";
+            }
+        }
+    } else {
+        echo "  ❌ Tabel '{$table_prefix}options' tidak ditemukan.\n";
+        echo "  💡 Tips: Cek daftar tabel dengan perintah: SHOW TABLES;\n";
+    }
 }
+
 $conn->close();
+echo "\n✅ Selesai.\n";
 ?>
