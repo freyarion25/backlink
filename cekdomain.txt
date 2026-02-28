@@ -26,7 +26,7 @@ echo "📁 Informasi Database:\n";
 echo "  DB Name: " . $dbname[1] . "\n";
 echo "  DB User: " . $dbuser[1] . "\n";
 echo "  DB Host: " . ($dbhost[1] ?? 'localhost') . "\n";
-echo "  Table Prefix: '" . $table_prefix . "'\n\n";
+echo "  Table Prefix: '" . $table_prefix . "' (dari wp-config)\n\n";
 
 // Konek database
 echo "🔌 Menghubungkan ke database...\n";
@@ -38,72 +38,23 @@ if ($conn->connect_error) {
 
 echo "✅ Koneksi berhasil!\n\n";
 
-// Cek apakah tabel options dengan prefix yang ditemukan ada
+// Gunakan prefix yang benar dari wp-config
 $table_name = $table_prefix . 'options';
 echo "🔍 Mencari tabel: " . $table_name . "\n";
 
-$check_table = $conn->query("SHOW TABLES LIKE '$table_name'");
-if ($check_table->num_rows == 0) {
-    echo "❌ Tabel '$table_name' tidak ditemukan!\n\n";
-    
-    // Cari semua tabel yang mirip options
-    echo "🔍 Mencari semua tabel yang mengandung 'options'...\n";
-    $tables = $conn->query("SHOW TABLES LIKE '%options%'");
-    
-    if ($tables->num_rows > 0) {
-        echo "✅ Ditemukan tabel-tabel berikut:\n";
-        $found = false;
-        
-        while ($row = $tables->fetch_array()) {
-            $table = $row[0];
-            echo "  - $table\n";
-            
-            // Coba cari siteurl di setiap tabel
-            $test = $conn->query("SELECT option_name, option_value FROM $table WHERE option_name IN ('siteurl', 'home') LIMIT 1");
-            if ($test->num_rows > 0) {
-                echo "    ✅ Tabel ini mengandung data siteurl/home!\n";
-                $found = true;
-                $real_table = $table;
-            }
-        }
-        
-        if ($found) {
-            echo "\n📌 Menggunakan tabel: $real_table\n";
-            $result = $conn->query("SELECT option_name, option_value FROM $real_table WHERE option_name IN ('siteurl', 'home')");
-            
-            echo "\n📌 Domain yang terkonfigurasi:\n";
-            echo str_repeat("-", 50) . "\n";
-            while($row = $result->fetch_assoc()) {
-                echo "  " . str_pad($row['option_name'], 10) . ": " . $row['option_value'] . "\n";
-                if (strpos($row['option_value'], 'americangreennm.com') !== false) {
-                    echo "  ✅ DOMAIN AMERICAN GREEN TERDETEKSI!\n";
-                }
-            }
-            echo str_repeat("-", 50) . "\n";
-        } else {
-            echo "\n❌ Tidak menemukan tabel dengan data siteurl/home.\n";
-        }
-    } else {
-        echo "❌ Tidak ada tabel yang mengandung 'options'.\n";
+$result = $conn->query("SELECT option_name, option_value FROM $table_name WHERE option_name IN ('siteurl', 'home')");
+
+if ($result && $result->num_rows > 0) {
+    echo "✅ Tabel ditemukan!\n\n";
+    echo "📌 Domain yang terkonfigurasi:\n";
+    echo str_repeat("-", 50) . "\n";
+    while($row = $result->fetch_assoc()) {
+        echo "  " . str_pad($row['option_name'], 10) . ": " . $row['option_value'] . "\n";
     }
+    echo str_repeat("-", 50) . "\n";
 } else {
-    // Tabel ditemukan, langsung query
-    echo "✅ Tabel ditemukan!\n";
-    $result = $conn->query("SELECT option_name, option_value FROM $table_name WHERE option_name IN ('siteurl', 'home')");
-    
-    if ($result->num_rows > 0) {
-        echo "\n📌 Domain yang terkonfigurasi:\n";
-        echo str_repeat("-", 50) . "\n";
-        while($row = $result->fetch_assoc()) {
-            echo "  " . str_pad($row['option_name'], 10) . ": " . $row['option_value'] . "\n";
-            if (strpos($row['option_value'], 'americangreennm.com') !== false) {
-                echo "  ✅ DOMAIN AMERICAN GREEN TERDETEKSI!\n";
-            }
-        }
-        echo str_repeat("-", 50) . "\n";
-    } else {
-        echo "❌ Tabel ditemukan tapi tidak ada data siteurl/home.\n";
-    }
+    echo "❌ Gagal query atau tabel tidak ditemukan.\n";
+    echo "   Error: " . $conn->error . "\n";
 }
 
 $conn->close();
