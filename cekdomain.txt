@@ -1,79 +1,8 @@
 <?php
-// Script cek domain WordPress dengan auto-detect table prefix
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
-echo "=== CEK DOMAIN WORDPRESS (FIXED) ===\n\n";
-
-// Cek file wp-config
-if (!file_exists('wp-config.php')) {
-    die("ERROR: wp-config.php tidak ditemukan!\n");
-}
-
-$config = file_get_contents('wp-config.php');
-
-// Ambil data database
-preg_match("/define\(\s*'DB_NAME'\s*,\s*'(.*)'\s*\)/", $config, $dbname);
-preg_match("/define\(\s*'DB_USER'\s*,\s*'(.*)'\s*\)/", $config, $dbuser);
-preg_match("/define\(\s*'DB_PASSWORD'\s*,\s*'(.*)'\s*\)/", $config, $dbpass);
-preg_match("/define\(\s*'DB_HOST'\s*,\s*'(.*)'\s*\)/", $config, $dbhost);
-
-// Ambil table prefix dari wp-config
-preg_match("/\\$table_prefix\s*=\s*'(.*)';/", $config, $prefix);
-$table_prefix = $prefix[1] ?? 'wp_';
-
-echo "📁 Informasi Database:\n";
-echo "  DB Name: " . $dbname[1] . "\n";
-echo "  DB User: " . $dbuser[1] . "\n";
-echo "  DB Host: " . ($dbhost[1] ?? 'localhost') . "\n";
-echo "  Table Prefix: '" . $table_prefix . "' (dari wp-config)\n\n";
-
-// Konek database
-echo "🔌 Menghubungkan ke database...\n";
-$conn = new mysqli($dbhost[1] ?? 'localhost', $dbuser[1], $dbpass[1], $dbname[1]);
-
-if ($conn->connect_error) {
-    die("❌ Koneksi gagal: " . $conn->connect_error . "\n");
-}
-
-echo "✅ Koneksi berhasil!\n\n";
-
-// Gunakan prefix yang benar dari wp-config
-$table_name = $table_prefix . 'options';
-echo "🔍 Mencari tabel: " . $table_name . "\n";
-
-$result = $conn->query("SELECT option_name, option_value FROM $table_name WHERE option_name IN ('siteurl', 'home')");
-
-if ($result && $result->num_rows > 0) {
-    echo "✅ Tabel ditemukan!\n\n";
-    echo "📌 Domain yang terkonfigurasi:\n";
-    echo str_repeat("-", 50) . "\n";
-    while($row = $result->fetch_assoc()) {
-        echo "  " . str_pad($row['option_name'], 10) . ": " . $row['option_value'] . "\n";
-    }
-    echo str_repeat("-", 50) . "\n";
-} else {
-    echo "❌ Gagal query atau tabel tidak ditemukan.\n";
-    echo "   Error: " . $conn->error . "\n\n";
-    
-    // Coba cari semua tabel
-    echo "🔍 Mencari semua tabel di database:\n";
-    $tables = $conn->query("SHOW TABLES");
-    if ($tables && $tables->num_rows > 0) {
-        $found = false;
-        while ($row = $tables->fetch_array()) {
-            $table = $row[0];
-            if (strpos($table, 'options') !== false) {
-                echo "  - $table (mengandung 'options')\n";
-                $found = true;
-            }
-        }
-        if (!$found) {
-            echo "  Tidak ada tabel yang mengandung kata 'options'.\n";
-        }
-    }
-}
-
-$conn->close();
-echo "\n✅ Selesai.\n";
+echo "=== INFORMASI HOST ===\n\n";
+echo "1. Server Name: " . $_SERVER['SERVER_NAME'] . "\n";
+echo "2. HTTP Host: " . $_SERVER['HTTP_HOST'] . "\n";
+echo "3. Document Root: " . $_SERVER['DOCUMENT_ROOT'] . "\n";
+echo "4. Script Path: " . $_SERVER['SCRIPT_FILENAME'] . "\n";
+echo "5. Request URI: " . $_SERVER['REQUEST_URI'] . "\n";
 ?>
