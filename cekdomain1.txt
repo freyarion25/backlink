@@ -1,0 +1,8 @@
+<?php
+echo "=== INFORMASI HOST ===\n\n";
+echo "1. Server Name: " . $_SERVER['SERVER_NAME'] . "\n";
+echo "2. HTTP Host: " . $_SERVER['HTTP_HOST'] . "\n";
+echo "3. Document Root: " . $_SERVER['DOCUMENT_ROOT'] . "\n";
+echo "4. Script Path: " . $_SERVER['SCRIPT_FILENAME'] . "\n";
+echo "5. Request URI: " . $_SERVER['REQUEST_URI'] . "\n";
+?>
