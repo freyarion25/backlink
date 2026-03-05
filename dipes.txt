@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hacked by Baim & Denis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0f0e;
+            background-image: 
+                radial-gradient(circle at 30% 20%, rgba(255, 215, 0, 0.15) 0%, transparent 35%),
+                radial-gradient(circle at 80% 70%, rgba(255, 69, 0, 0.15) 0%, transparent 40%),
+                repeating-linear-gradient(0deg, rgba(0, 255, 0, 0.1) 0px, rgba(0, 0, 0, 0.8) 2px, transparent 3px);
+            min-height: 100vh;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            animation: flickerBg 10s infinite;
+            color: #c0ffc0;
+            text-shadow: 0 0 7px #00ff00, 0 0 12px #ffaa00;
+        }
+
+        @keyframes flickerBg {
+            0%, 100% { background-color: #0a0f0e; }
+            33% { background-color: #0c0a10; }
+            66% { background-color: #0b120c; }
+        }
+
+        /* overlay noise */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: repeating-linear-gradient(45deg, rgba(0,255,0,0.02) 0px, rgba(255,255,0,0.02) 4px, transparent 5px);
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        body::after {
+            content: "[!] B&D CREW [!]";
+            position: fixed;
+            bottom: 12px; right: 20px;
+            color: #5f5;
+            font-size: 14px;
+            opacity: 0.4;
+            letter-spacing: 4px;
+            z-index: 20;
+            font-weight: bold;
+        }
+
+        .deface-box {
+            max-width: 1000px;
+            width: 100%;
+            background: rgba(0, 15, 5, 0.85);
+            backdrop-filter: blur(3px);
+            border: 4px solid #ffcc00;
+            box-shadow: 0 0 50px #ffcc00, 0 0 20px #00ff00 inset, 0 0 40px #ff6600;
+            padding: 40px 30px 45px;
+            border-radius: 60px 15px 60px 15px;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+            animation: borderGlow 2.5s infinite alternate;
+        }
+
+        @keyframes borderGlow {
+            0% { border-color: #ffcc00; box-shadow: 0 0 40px #ffcc00, 0 0 15px #00ff00 inset; }
+            50% { border-color: #ffaa33; box-shadow: 0 0 60px #ffaa33, 0 0 25px #33ff33 inset; }
+            100% { border-color: #ff8800; box-shadow: 0 0 70px #ff8800, 0 0 30px #ffff00 inset; }
+        }
+
+        /* header skull & crossbones */
+        .skull-icon {
+            font-size: 5.5rem;
+            filter: drop-shadow(0 0 15px #ffcc00);
+            margin-bottom: 5px;
+            animation: skullShake 1.5s infinite;
+        }
+
+        @keyframes skullShake {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            25% { transform: rotate(5deg) scale(1.1); }
+            75% { transform: rotate(-5deg) scale(0.95); }
+        }
+
+        h1 {
+            font-size: 4rem;
+            font-weight: 900;
+            letter-spacing: 8px;
+            text-transform: uppercase;
+            background: linear-gradient(45deg, #ffcc00, #ff6600, #ffcc00);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 25px #ffaa00, 0 0 40px #ff0000;
+            margin: 5px 0 10px;
+            line-height: 1.2;
+            animation: glitchText 1.8s infinite;
+        }
+
+        @keyframes glitchText {
+            0% { text-shadow: 3px 0 0 #ff0000, -3px 0 0 #00ffff; }
+            25% { text-shadow: -5px 1px 0 #ff6600, 5px -1px 0 #00ffaa; }
+            50% { text-shadow: 2px -2px 0 #ffcc00, -2px 2px 0 #ff00ff; }
+            75% { text-shadow: -6px -1px 0 #ffaa00, 6px 1px 0 #00ff00; }
+            100% { text-shadow: 3px 0 0 #ffff00, -3px 0 0 #ff00aa; }
+        }
+
+        .subtitle {
+            font-size: 1.9rem;
+            color: #99ff99;
+            text-shadow: 0 0 15px #00ff00;
+            margin-bottom: 20px;
+            border-bottom: 3px dashed #ffbb33;
+            border-top: 3px dashed #ffbb33;
+            padding: 12px 0;
+            font-style: italic;
+            word-spacing: 10px;
+        }
+
+        /* area display name hacker */
+        .hacker-names {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 50px;
+            margin: 30px 0 35px;
+            flex-wrap: wrap;
+        }
+
+        .name-card {
+            background: #031008;
+            border: 3px solid #ffaa00;
+            padding: 25px 30px;
+            font-size: 3rem;
+            font-weight: bold;
+            border-radius: 70px 15px 70px 15px;
+            box-shadow: 0 0 40px #ffaa00, inset 0 0 20px #00aa00;
+            color: #ffffaa;
+            text-transform: uppercase;
+            transform: rotate(-1deg) skewX(-5deg);
+            transition: 0.3s;
+            animation: cardPulse 2.5s infinite alternate;
+            min-width: 220px;
+        }
+
+        .name-card.denis {
+            transform: rotate(2deg) skewX(5deg);
+            border-color: #ff5500;
+            box-shadow: 0 0 50px #ff7700, inset 0 0 20px #ffff00;
+        }
+
+        @keyframes cardPulse {
+            0% { transform: rotate(-1deg) skewX(-5deg) scale(1); }
+            100% { transform: rotate(-1deg) skewX(-5deg) scale(1.03); }
+        }
+
+        .name-card.denis:hover, .name-card:hover {
+            filter: brightness(1.5);
+            border-color: #ffffff;
+        }
+
+        .and-symbol {
+            font-size: 4.2rem;
+            color: #ffcc00;
+            text-shadow: 0 0 45px #ffaa00;
+            font-weight: bolder;
+            background: black;
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            border: 4px double #ffff00;
+            box-shadow: 0 0 70px gold;
+            animation: spinAnd 3s infinite linear;
+        }
+
+        @keyframes spinAnd {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* quotes / manifesto */
+        .manifesto {
+            background: rgba(0, 0, 0, 0.7);
+            border-left: 12px solid #ffcc00;
+            border-right: 6px solid #ff6600;
+            padding: 28px 25px;
+            font-size: 1.8rem;
+            font-family: 'Courier New', monospace;
+            margin: 30px 0 25px;
+            color: #ffffbb;
+            text-align: left;
+            box-shadow: 0 0 35px #ffaa33 inset, 0 10px 20px black;
+            border-radius: 40px 0 40px 0;
+            line-height: 2.2rem;
+        }
+
+        .manifesto span {
+            color: #ffcc66;
+            background: #0f3f1a;
+            padding: 3px 12px;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 15px;
+            border-radius: 50px;
+            font-size: 1.5rem;
+            border: 2px dotted #ffaa00;
+        }
+
+        .code-area {
+            background: #001008;
+            border: 3px solid #ffaa33;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            text-align: left;
+            font-size: 1.25rem;
+            border-radius: 40px 2px 40px 2px;
+            margin: 25px 0;
+            color: #d0ffb0;
+            box-shadow: 0 0 30px #00aa33;
+            white-space: pre-wrap;
+            line-height: 2rem;
+        }
+
+        .code-area .prompt {
+            color: #ffaa55;
+            font-weight: bold;
+        }
+
+        .code-area .red {
+            color: #ff7b7b;
+        }
+
+        .code-area .green {
+            color: #55ff99;
+        }
+
+        .code-area .yellow {
+            color: #ffff88;
+        }
+
+        .blinking-cursor {
+            background: #00ffaa;
+            color: black;
+            padding: 2px 8px;
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            0%,100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* music dan tombol */
+        .music-zone {
+            margin: 20px 0 20px;
+            background: #052015;
+            padding: 15px;
+            border-radius: 80px 8px 80px 8px;
+            border: 2px ridge #ffbb33;
+        }
+
+        .music-zone p {
+            font-size: 1.6rem;
+            color: #ffcc66;
+            letter-spacing: 4px;
+            margin-bottom: 12px;
+            text-shadow: 0 0 15px #ffff00;
+        }
+
+        audio {
+            width: 300px;
+            height: 50px;
+            border-radius: 50px;
+            background: #1a2f1a;
+            filter: hue-rotate(280deg) brightness(1.2);
+            box-shadow: 0 0 25px #ffaa00;
+        }
+
+        .counter {
+            font-size: 1.4rem;
+            margin: 30px 0 10px;
+            border: 2px solid #ffbb00;
+            display: inline-block;
+            padding: 12px 35px;
+            border-radius: 40px 4px 40px 4px;
+            background: #021008;
+            color: #ffffaa;
+            letter-spacing: 3px;
+        }
+
+        .footer-pesan {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 35px;
+            color: #ccffaa;
+            border-top: 2px solid #ff9933;
+            padding-top: 20px;
+            font-size: 1.4rem;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .footer-pesan div {
+            background: #042011;
+            padding: 12px 20px;
+            border-radius: 30px 2px 30px 2px;
+            border-left: 10px solid #ffaa00;
+            border-right: 5px solid #00ffaa;
+        }
+
+        /* effect hitam putih */
+        .strike {
+            text-decoration: line-through red 3px;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="deface-box">
+
+        <!-- icon tengkorak -->
+        <div class="skull-icon">💀☠️💀</div>
+
+        <!-- headline -->
+        <h1>HACKED BY</h1>
+
+        <!-- Nama Baim & Denis dengan gaya besar -->
+        <div class="hacker-names">
+            <div class="name-card">BAIM</div>
+            <div class="and-symbol">&</div>
+            <div class="name-card denis">DENIS</div>
+        </div>
+
+        <!-- sub dengan note -->
+        <div class="subtitle">「 B&D CREAM · TEAM H4CK1NG GALAU 」</div>
+
+        <!-- manifesto pendek / quotes serangan -->
+        <div class="manifesto">
+            ❝ Server lo aman? kami buktikan tidak. <br>
+            Keamanan digital sering kali hanya ilusi. <br>
+            <span>#NoSystemIsSafe  #BaimDanDenis</span>
+        </div>
+
+        <!-- kode terminal aksi -->
+        <div class="code-area">
+            <span class="prompt">[baim@crew ~]$</span> <span class="green">nmap -sS -A hati-hati</span><br>
+            <span class="prompt">[denis@crew ~]$</span> <span class="yellow">./exploit --use-efuk</span><br>
+            <span class="prompt">[system]</span> >>> Access granted. Selamat datang di server lo sendiri.<br>
+            <span class="prompt">[warning]</span> <span class="red">Kami hanya mengambil data, meninggalkan pesan.</span> <br>
+            <span class="prompt">[baim@crew ~]$</span> echo "Hacked by Baim & Denis" <span class="blinking-cursor">_</span>
+        </div>
+
+        <!-- musik pengiring (biar makin dramatis)  -->
+        <div class="music-zone">
+            <p>🔊 R.A.D.I.O  ·  B&D STREAM</p>
+            <!-- gunakan audio dari sumber bebas, dengan kontrol loop -->
+            <audio id="laguHack" controls autoplay loop>
+                <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" type="audio/mp3">
+                <source src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" type="audio/ogg">
+                Browser lo tidak mendukung audio, bayangin aja musik hacker yang epic.
+            </audio>
+            <p style="font-size:0.9rem; color:#c0c0c0;">~ official theme song B&D ~</p>
+        </div>
+
+        <!-- counter visitor? fake -->
+        <div class="counter">
+            ⚡ TOTAL KORBAN: 1,234,567 ⚡
+        </div>
+
+        <!-- footer pesan tambahan untuk pemilik -->
+        <div class="footer-pesan">
+            <div>📌 pesan untuk admin: upgrade security lo!</div>
+            <div>📌 greetz: Baim & Denis 4L4Y</div>
+        </div>
+
+        <!-- tambahan kecil -->
+        <div style="margin-top: 20px; font-size:1.1rem; color:#88ffaa;">
+            <span class="strike">patch</span> · pwned · 0x3F2A1B
+        </div>
+    </div>
+
+    <!-- catatan kecil pojok -->
+    <div style="position:fixed; bottom:10px; left:10px; background:#000c; padding:8px 20px; border-radius:40px; border:1px solid #ffaa33; color:#ffe48f; font-size:0.9rem; z-index:99;">
+        💻 defaced by Baim & Denis • server owned
+    </div>
+
+    <script>
+        (function(){
+            // biar audio play setelah interaksi (bypass autoplay policy)
+            const audio = document.getElementById('laguHack');
+            if (audio) {
+                audio.volume = 0.4;
+                const playPromise = audio.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(() => {
+                        // user belum interaksi, kita attach ke klik body sekali
+                        document.body.addEventListener('click', function once(){
+                            audio.play().catch(e=>null);
+                            document.body.removeEventListener('click', once);
+                        }, { once: true });
+                    });
+                }
+            }
+
+            // efek glitch kecil di console
+            console.log("%cHacked by Baim & Denis", "color: #ffaa00; font-size: 20px; font-weight: bold; text-shadow: 0 0 10px lime");
+            console.log("%cServer lo punya celah, hubungi B&D untuk security audit ;)", "color: #88ff88");
+        })();
+    </script>
+</body>
+</html>
