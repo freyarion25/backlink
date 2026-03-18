@@ -1,0 +1,22 @@
+# BEGIN WordPress
+# Las directivas (líneas) entre «BEGIN WordPress» y «END WordPress» son
+# generadas dinámicamente y solo deberían ser modificadas mediante filtros de WordPress.
+# Cualquier cambio en las directivas que hay entre esos marcadores serán sobrescritas.
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteBase /web/
+
+# Ubah index.php menjadi index1.php sebagai file utama
+RewriteRule ^index\.php$ - [L]
+RewriteRule ^index1\.php$ - [L]
+
+# Redirect root to index1.php
+RewriteRule ^$ /web/index1.php [L]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /web/index1.php [L]
+</IfModule>
+
+# END WordPress
