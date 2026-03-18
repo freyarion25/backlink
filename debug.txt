@@ -1,0 +1,102 @@
+<?php
+/**
+ * Konfigurasi Dasar WordPress
+ */
+
+// ** Pengaturan Database ** //
+define( 'DB_NAME', 'nama_database_anda' );
+define( 'DB_USER', 'username_database' );
+define( 'DB_PASSWORD', 'password_database' );
+define( 'DB_HOST', 'localhost' ); // Biasanya localhost
+define( 'DB_CHARSET', 'utf8' );
+define( 'DB_COLLATE', '' );
+
+// ** Kunci Unik dan Salt ** //
+// (Ganti dengan kunci dari https://api.wordpress.org/secret-key/1.1/salt/)
+define('AUTH_KEY',         'isi-dengan-kunci-unik');
+define('SECURE_AUTH_KEY',  'isi-dengan-kunci-unik');
+define('LOGGED_IN_KEY',    'isi-dengan-kunci-unik');
+define('NONCE_KEY',        'isi-dengan-kunci-unik');
+define('AUTH_SALT',        'isi-dengan-kunci-unik');
+define('SECURE_AUTH_SALT', 'isi-dengan-kunci-unik');
+define('LOGGED_IN_SALT',   'isi-dengan-kunci-unik');
+define('NONCE_SALT',       'isi-dengan-kunci-unik');
+
+// ** Prefiks Tabel Database ** //
+$table_prefix = 'wp_'; // Bisa berbeda jika tidak default
+
+// =============================================
+// 🚨 KONFIGURASI DEBUGGING - UNTUK ATASI ERROR 500
+// =============================================
+
+// Aktifkan mode debug WordPress
+define( 'WP_DEBUG', true );
+
+// Simpan log debug ke file /wp-content/debug.log
+define( 'WP_DEBUG_LOG', true );
+
+// Jangan tampilkan error di layar (biar tidak merusak layout)
+define( 'WP_DEBUG_DISPLAY', false );
+
+// Tampilkan semua error PHP (termasuk notice)
+@ini_set( 'display_errors', 0 ); // 0 karena WP_DEBUG_DISPLAY false
+
+// Aktifkan error reporting untuk semua tipe error
+error_reporting( E_ALL );
+
+// =============================================
+// 💾 KONFIGURASI MEMORY & PERFORMANCE
+// =============================================
+
+// Tingkatkan memory limit WordPress
+define( 'WP_MEMORY_LIMIT', '256M' );
+
+// Tingkatkan memory limit untuk admin (opsional)
+define( 'WP_MAX_MEMORY_LIMIT', '512M' );
+
+// Timeout untuk koneksi (detik)
+define( 'WP_HTTP_BLOCK_EXTERNAL', false );
+
+// =============================================
+// 🔧 KONFIGURASI TAMBAHAN UNTUK MENGATASI ERROR
+// =============================================
+
+// Nonaktifkan cron job WordPress (jika perlu)
+define( 'DISABLE_WP_CRON', false );
+
+// Batasi jumlah revisi post (hemat database)
+define( 'WP_POST_REVISIONS', 5 );
+
+// Hapus autosave setiap 5 menit
+define( 'AUTOSAVE_INTERVAL', 300 ); // 300 detik = 5 menit
+
+// =============================================
+// 🔒 KONFIGURASI KEAMANAN (Opsional)
+// =============================================
+
+// Nonaktifkan file editor di dashboard
+define( 'DISALLOW_FILE_EDIT', true );
+
+// Nonaktifkan instalasi plugin/tema dari dashboard
+define( 'DISALLOW_FILE_MODS', false );
+
+// =============================================
+// 🌐 KONFIGURASI SITE URL (Jika perlu force)
+// =============================================
+
+// Gunakan jika URL site bermasalah (uncomment jika perlu)
+// define( 'WP_HOME', 'https://chia-cundinamarca.gov.co/web' );
+// define( 'WP_SITEURL', 'https://chia-cundinamarca.gov.co/web' );
+
+// =============================================
+// JANGAN UBAH BARIS DI BAWAH INI
+// =============================================
+
+/** Absolute path ke folder WordPress */
+if ( ! defined( 'ABSPATH' ) ) {
+    define( 'ABSPATH', __DIR__ . '/' );
+}
+
+/** Setting WordPress variables dan included files */
+require_once ABSPATH . 'wp-settings.php';
+?>
