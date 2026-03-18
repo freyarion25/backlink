@@ -1,0 +1,144 @@
+<?php
+
+/**
+ * The base configuration for WordPress
+ *
+ * The wp-config.php creation script uses this file during the installation.
+ * You don't have to use the web site, you can copy this file to "wp-config.php"
+ * and fill in the values.
+ *
+ * This file contains the following configurations:
+ *
+ * * Database settings
+ * * Secret keys
+ * * Database table prefix
+ * * ABSPATH
+ *
+ * @link https://wordpress.org/documentation/article/editing-wp-config-php/
+ *
+ * @package WordPress
+ */
+
+// ** Database settings - You can get this info from your web host ** //
+/** The name of the database for WordPress */
+define( 'DB_NAME', 'chiacund_donoso' );
+
+/** Database username */
+define( 'DB_USER', 'chiacundippal_enaccion' );
+
+/** Database password */
+define( 'DB_PASSWORD', 'Cambio@2024' );
+
+/** Database hostname */
+define( 'DB_HOST', 'localhost' );
+
+/** Database charset to use in creating database tables. */
+define( 'DB_CHARSET', 'utf8mb4' );
+
+/** The database collate type. Don't change this if in doubt. */
+define( 'DB_COLLATE', '' );
+
+/**#@+
+ * Authentication unique keys and salts.
+ *
+ * Change these to different unique phrases! You can generate these using
+ * the {@link https://api.wordpress.org/secret-key/1.1/salt/ WordPress.org secret-key service}.
+ *
+ * You can change these at any point in time to invalidate all existing cookies.
+ * This will force all users to have to log in again.
+ *
+ * @since 2.6.0
+ */
+
+define( 'AUTH_KEY',         '~`#Uq#1e1lqf}{Ky0#EO_ankZJ(o=T5nU/6MC6m4-]ia7PK+Od!rb7+#B;l1{SqX' );
+define( 'SECURE_AUTH_KEY',  '5No~V{o-QEZ7)a7F%E1:,:#Lkia^E-V`~gU`=Ds8Y[^AO/U:Sw{KMr}[)?iv7>&^' );
+define( 'LOGGED_IN_KEY',    '+M-faPFBu(^X?ZCH3Iy.+2CB&Aa2yV@WFWwz6eMLk;9P+HJ]0;%YOtWOK4yvi`Y-' );
+define( 'NONCE_KEY',        '@wTg-K!H5_W48mF/gz+l1UfIP9v1>Eg$Y%hhG2@uF]dt[Y/i=TLGJUua:1j(alol' );
+define( 'AUTH_SALT',        ',C$vd+<[T1.K>]3;XR+aE%jqY30KoHn%)C~VzHzo=[WJM<!<70eKAgtcU&sk-GOs' );
+define( 'SECURE_AUTH_SALT', 'n8@,frY?]J7I3;m&_KLj9m}SX1ksP=@9KX24?#NOyvfM4}S~}+r <rg&zUh-Wt6Z' );
+define( 'LOGGED_IN_SALT',   'Arn[%Y@Z8{_}d<_i#0)@C)rBR>4-/J_@h__EjFUwvdPzQe%p_^Z>!si}62v#2)H7' );
+define( 'NONCE_SALT',       '!;Lry``GCsMB*-mj?D.e==i 0otJwV`!dj.HzH2JOA2Sn5Y2v%2CW>oeu[@/BLM8' );
+
+/**#@-*/
+
+/**
+ * WordPress database table prefix.
+ *
+ * You can have multiple installations in one database if you give each
+ * a unique prefix. Only numbers, letters, and underscores please!
+ */
+$table_prefix = 'wp_';
+
+/**
+ * =====================================================
+ * 🚨 KONFIGURASI DEBUGGING - DITAMBAHKAN UNTUK ATASI ERROR 500
+ * =====================================================
+ */
+
+// Aktifkan mode debug WordPress
+define( 'WP_DEBUG', true );
+
+// Simpan log debug ke file /wp-content/debug.log
+define( 'WP_DEBUG_LOG', true );
+
+// Jangan tampilkan error di layar (biar tidak merusak layout)
+define( 'WP_DEBUG_DISPLAY', false );
+
+// Tampilkan semua error PHP (termasuk notice)
+@ini_set( 'display_errors', 0 );
+
+// Aktifkan error reporting untuk semua tipe error
+error_reporting( E_ALL );
+
+/**
+ * =====================================================
+ * 💾 KONFIGURASI MEMORY & PERFORMANCE - DITAMBAHKAN
+ * =====================================================
+ */
+
+// Tingkatkan memory limit WordPress
+define( 'WP_MEMORY_LIMIT', '256M' );
+
+// Tingkatkan memory limit untuk admin area
+define( 'WP_MAX_MEMORY_LIMIT', '512M' );
+
+// Batasi jumlah revisi post (hemat database)
+define( 'WP_POST_REVISIONS', 5 );
+
+// Hapus autosave setiap 5 menit
+define( 'AUTOSAVE_INTERVAL', 300 );
+
+/**
+ * =====================================================
+ * 🔧 KONFIGURASI TAMBAHAN UNTUK MENGATASI ERROR
+ * =====================================================
+ */
+
+// Force SSL untuk admin (jika menggunakan HTTPS)
+// define( 'FORCE_SSL_ADMIN', true );
+
+// Nonaktifkan cron job WordPress (jika perlu)
+define( 'DISABLE_WP_CRON', false );
+
+/**
+ * =====================================================
+ * 🌐 KONFIGURASI SITE URL (Jika diperlukan)
+ * =====================================================
+ */
+
+// Uncomment baris di bawah jika URL site bermasalah
+// define( 'WP_HOME', 'https://chia-cundinamarca.gov.co/web' );
+// define( 'WP_SITEURL', 'https://chia-cundinamarca.gov.co/web' );
+
+/* Add any custom values between this line and the "stop editing" line. */
+
+/* That's all, stop editing! Happy publishing. */
+
+/** Absolute path to the WordPress directory. */
+if ( ! defined( 'ABSPATH' ) ) {
+	define( 'ABSPATH', __DIR__ . '/' );
+}
+
+/** Sets up WordPress vars and included files. */
+require_once ABSPATH . 'wp-settings.php';
+?>
